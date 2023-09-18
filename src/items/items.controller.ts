@@ -26,8 +26,8 @@ export class ItemsController {
   }
 
   @Post()
-  create(@Body() createItemDto: CreateitemDto): string {
-    return `Name: ${createItemDto.name} Desc: ${createItemDto.description}`;
+  create(@Body() createItemDto: CreateitemDto): Promise<Item> {
+    return this.itemsService.create(createItemDto);
   }
 
   @Delete(':id')

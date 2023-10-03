@@ -5,7 +5,9 @@ import {
   UseGuards,
   Body,
   UnauthorizedException,
-} from '@nestjs/common'; // Import hinzugefügt
+  BadRequestException, // Add this line
+} from '@nestjs/common';
+
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './JwtAuthGuard';
 
@@ -14,10 +16,14 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() body: { username: string; password: string }) {
+  async login(@Body() body: { Username: string; Password: string }) {
+    console.log(body);
+    if (!body.Username || !body.Password) {
+      throw new BadRequestException('Username and password are required');
+    }
     const user = await this.authService.validateUser(
-      body.username,
-      body.password,
+      body.Username,
+      body.Password,
     );
     if (!user) {
       throw new UnauthorizedException();

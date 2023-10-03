@@ -33,6 +33,7 @@ export class UserController {
 
   @Post()
   async create(@Body() userData: any) {
+    console.log('Received userData:', userData);
     await this.userService.create(userData);
     return { message: 'User successfully created' };
   }

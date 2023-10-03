@@ -33,11 +33,13 @@ export class UserService {
   }
 
   async create(userData: any) {
-    if (!userData.password || typeof userData.password !== 'string') {
+    if (!userData.Password || typeof userData.Password !== 'string') {
       throw new Error('Password is required and must be a string');
     }
-    const salt = await bcrypt.genSalt();
-    userData.password = await bcrypt.hash(userData.password, salt);
+
+    const hashedPassword = await bcrypt.hash(userData.Password, 10);
+
+    userData.Password = hashedPassword;
 
     const query = 'INSERT INTO User SET ?';
     await this.connection.query(query, [userData]);

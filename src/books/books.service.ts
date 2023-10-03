@@ -1,36 +1,64 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Book } from './book.entity';
-import { CreateBookDto } from './dto/create-book-dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectConnection } from '@nestjs/typeorm';
+import { Connection } from 'typeorm';
 
 @Injectable()
 export class BooksService {
-  constructor(
-    @InjectRepository(Book)
-    private booksRepository: Repository<Book>,
-  ) {}
+  constructor(@InjectConnection() private connection: Connection) {}
 
-  findAll(): Promise<Book[]> {
-    return this.booksRepository.find();
+  async findAll() {
+    const query = `
+      SELECT Books.Id, Books.Titel, Books.Erscheinungsjahr, Autor.FullName as Autor 
+      FROM Books 
+      JOIN Autor ON Books.AutorID = Autor.ID
+    `;
+    return await this.connection.query(query);
   }
 
-  findOne(id: string): Promise<Book> {
-    return this.booksRepository.findOneOrFail({ where: { id } });
+  async findOne(id: number) {
+    const query = `
+      SELECT Books.Id, Books.Titel, Books.Erscheinungsjahr, Autor.FullName as Autor 
+      FROM Books 
+      JOIN Autor ON Books.AutorID = Autor.ID
+      WHERE Books.Id = ?
+    `;
+    const result = await this.connection.query(query, [id]);
+    if (result.length > 0) {
+      return result[0];
+    } else {
+      throw new NotFoundException('Book not found');
+    }
   }
 
-  async create(createBookDto: CreateBookDto): Promise<Book> {
-    const newBook = this.booksRepository.create(createBookDto);
-    return await this.booksRepository.save(newBook);
+  async create(bookData: any) {
+    const newBook = {
+      Titel: bookData.Titel,
+      Erscheinungsjahr: bookData.Erscheinungsjahr,
+      AutorID: bookData.AutorID,
+    };
+    const query = 'INSERT INTO Books SET ?';
+    await this.connection.query(query, [newBook]);
   }
 
-  async update(id: string, updateBookDto: CreateBookDto): Promise<Book> {
-    const book = await this.booksRepository.findOneOrFail({ where: { id } });
-    Object.assign(book, updateBookDto);
-    return await this.booksRepository.save(book);
+  async update(id: number, updateData: any) {
+    const query = `
+      UPDATE Books 
+      SET 
+        Titel = ?, 
+        Erscheinungsjahr = ?, 
+        AutorID = ? 
+      WHERE Id = ?
+    `;
+    await this.connection.query(query, [
+      updateData.Titel,
+      updateData.Erscheinungsjahr,
+      updateData.AutorID,
+      id,
+    ]);
   }
 
-  async remove(id: string): Promise<void> {
-    await this.booksRepository.delete(id);
+  async remove(id: number) {
+    const query = 'DELETE FROM Books WHERE Id = ?';
+    await this.connection.query(query, [id]);
   }
 }

@@ -1,16 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
-@Entity()
-export class Book {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+@Entity("Books")
+export class Books {
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column()
   Titel: string;
 
   @Column()
   Erscheinungsjahr: number;
-
-  @Column()
-  AutorID: number;
 }

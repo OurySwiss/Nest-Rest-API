@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BooksController } from './books.controller';
 import { BooksService } from './books.service';
-import { Books } from './book.entity';
+import { Books } from './entity/book.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Books])],

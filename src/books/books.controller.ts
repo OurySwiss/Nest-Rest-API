@@ -10,7 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { BooksService } from './books.service';
-import { JwtAuthGuard } from '../users/JwtAuthGuard';
+import { JwtAuthGuard } from '../users/auth/JwtAuthGuard';
 
 @Controller('books')
 export class BooksController {

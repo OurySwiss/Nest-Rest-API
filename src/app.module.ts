@@ -5,7 +5,7 @@ import { dataSourceOptions } from 'data-source';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './users/users.module';
-import { AuthModule } from './users/auth.module';
+import { AuthModule } from './users/auth/auth.module';
 
 @Module({
   imports: [

@@ -2,20 +2,20 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserEntity } from './entity/user.entity';
+import { User } from './entity/user.entity';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
   ) {}
 
-  async findAll(): Promise<Partial<UserEntity>[]> {
+  async findAll(): Promise<Partial<User>[]> {
     return await this.userRepository.find({ select: ['Username', 'Name', 'Vorname'] });
   }
 
-  async findOneByUsername(Username: string): Promise<UserEntity | null> {
+  async findOneByUsername(Username: string): Promise<User | null> {
     const user = await this.userRepository.findOne({ where: { Username } });
     if (!user) {
       return null;
@@ -23,7 +23,7 @@ export class UserService {
     return user;
   }
 
-  async findOne(id: number): Promise<UserEntity> {
+  async findOne(id: number): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -31,7 +31,7 @@ export class UserService {
     return user;
   }
 
-  async create(userData: Partial<UserEntity>): Promise<void> {
+  async create(userData: Partial<User>): Promise<void> {
     if (!userData.Password || typeof userData.Password !== 'string') {
       throw new Error('Password is required and must be a string');
     }
@@ -40,7 +40,7 @@ export class UserService {
     await this.userRepository.save(userData);
   }
 
-  async update(id: string, updateData: Partial<UserEntity>): Promise<void> {
+  async update(id: string, updateData: Partial<User>): Promise<void> {
     await this.userRepository.update(id, updateData);
   }
 

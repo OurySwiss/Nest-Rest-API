@@ -15,7 +15,7 @@ import {
 import { UserService } from './users.service';
 import { JwtAuthGuard } from './auth/JwtAuthGuard';
 import { GetUser } from './auth/get-user.decorator';
-import { UserEntity } from './entity/user.entity';
+import { User } from './entity/user.entity';
 
 @Controller('users')
 export class UserController {
@@ -52,7 +52,7 @@ export class UserController {
   async update(
     @Param('id') id: number,
     @Body() updateUserDto: any,
-    @GetUser() user: UserEntity,
+    @GetUser() user: User,
   ) {
     if (user.id !== +id) {
       throw new ForbiddenException('You can only update your own data');
@@ -62,7 +62,7 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: number, @GetUser() user: UserEntity) {
+  async remove(@Param('id') id: number, @GetUser() user: User) {
     if (user.id !== +id) {
       throw new ForbiddenException('You can only delete your own data');
     }

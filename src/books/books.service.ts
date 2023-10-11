@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Books } from './entity/book.entity';
+import { Book } from './entity/book.entity';
 
 @Injectable()
 export class BooksService {
   constructor(
-    @InjectRepository(Books)
-    private booksRepository: Repository<Books>,
+    @InjectRepository(Book)
+    private booksRepository: Repository<Book>,
   ) {}
 
-  async findAll(): Promise<Books[]> {
+  async findAll(): Promise<Book[]> {
     return await this.booksRepository.find();
   }
 
-  async findOne(id: number): Promise<Books> {
+  async findOne(id: number): Promise<Book> {
     const book = await this.booksRepository.findOne({
       where: { id },
     });
@@ -24,12 +24,12 @@ export class BooksService {
     return book;
   }
 
-  async create(bookData: Partial<Books>): Promise<Books> {
+  async create(bookData: Partial<Book>): Promise<Book> {
     const newBook = this.booksRepository.create(bookData);
     return await this.booksRepository.save(newBook);
   }
 
-  async update(id: number, updateData: Partial<Books>): Promise<Books> {
+  async update(id: number, updateData: Partial<Book>): Promise<Book> {
     await this.booksRepository.update(id, updateData);
     return await this.findOne(id);
   }

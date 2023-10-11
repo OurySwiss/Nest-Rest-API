@@ -3,8 +3,8 @@ import {
   DataSource,
   DataSourceOptions,
 } from 'typeorm';
-import { Books } from 'src/books/entity/book.entity';
-import { UserEntity } from 'src/users/entity/user.entity';
+import { Book } from 'src/books/entity/book.entity';
+import { User } from 'src/users/entity/user.entity';
 
 config();
 
@@ -16,7 +16,7 @@ export const dataSourceOptions: DataSourceOptions = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
   migrations: ['dist/migrations/*.js'],
-  entities: [Books, UserEntity],
+  entities: [Book, User],
   synchronize: false,
 };
 

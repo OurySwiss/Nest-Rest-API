@@ -11,8 +11,8 @@ export class UserService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async findAll(): Promise<UserEntity[]> {
-    return await this.userRepository.find();
+  async findAll(): Promise<Partial<UserEntity>[]> {
+    return await this.userRepository.find({ select: ['Username', 'Name', 'Vorname'] });
   }
 
   async findOneByUsername(Username: string): Promise<UserEntity | null> {

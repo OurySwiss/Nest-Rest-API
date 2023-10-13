@@ -17,7 +17,6 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() body: { Username: string; Password: string }) {
-    console.log(body);
     if (!body.Username || !body.Password) {
       throw new BadRequestException('Username and password are required');
     }

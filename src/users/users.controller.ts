@@ -11,6 +11,8 @@ import {
   NotFoundException,
   ForbiddenException,
   ParseIntPipe,
+  HttpStatus,
+  HttpException,
 } from '@nestjs/common';
 import { UserService } from './users.service';
 import { JwtAuthGuard } from './auth/JwtAuthGuard';
@@ -29,13 +31,9 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: number, @Request() req) {
-    console.log("🚀 ~ file: users.controller.ts:32 ~ UserController ~ findOne ~ id:", typeof(id))
     const userIdFromToken = req.user.userId;
-    console.log("🚀 ~ file: users.controller.ts:33 ~ UserController ~ findOne ~ req.user.userId:", typeof(req.user.userId))
-    console.log(req.user);
-    console.log("🚀 ~ file: users.controller.ts:34 ~ UserController ~ findOne ~ req.user:", req.user)
-    
-    if (userIdFromToken !== +id) {
+
+    if (userIdFromToken !== Number(id)) {
       throw new ForbiddenException('You can only access your own data');
     }
     return this.userService.findOne(id);
@@ -43,27 +41,37 @@ export class UserController {
 
   @Post()
   async create(@Body() userData: any) {
-    await this.userService.create(userData);
-    return { message: 'User successfully created' };
+    try {
+      await this.userService.create(userData);
+      return { message: 'User successfully created' };
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.INTERNAL_SERVER_ERROR,
+          error: 'There was a problem creating the user',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
   async update(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number, // Ensure id is a number
     @Body() updateUserDto: any,
     @GetUser() user: User,
   ) {
-    if (user.id !== +id) {
+    if (user.id !== Number(id)) {
       throw new ForbiddenException('You can only update your own data');
     }
-    return this.userService.update(id.toString(), updateUserDto);
+    return this.userService.update(id, updateUserDto);
   }
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: number, @GetUser() user: User) {
-    if (user.id !== +id) {
+    if (user.id !== Number(id)) {
       throw new ForbiddenException('You can only delete your own data');
     }
     return this.userService.remove(id.toString());

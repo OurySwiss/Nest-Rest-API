@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Book } from './entity/book.entity';
@@ -30,11 +30,33 @@ export class BooksService {
   }
 
   async update(id: number, updateData: Partial<Book>): Promise<Book> {
-    await this.booksRepository.update(id, updateData);
-    return await this.findOne(id);
+    const existingBook = await this.booksRepository.findOne({
+      where: {id}
+    });
+    if (!existingBook) {
+      throw new NotFoundException(`Book with id ${id} not found`);
+    }
+
+    try {
+      await this.booksRepository.update(id, updateData);
+      return await this.findOne(id);
+    } catch (error) {
+      throw new InternalServerErrorException('Error updating the book');
+    }
   }
 
   async remove(id: number): Promise<void> {
-    await this.booksRepository.delete(id);
+    const existingBook = await this.booksRepository.findOne({
+      where: {id}
+    });
+    if (!existingBook) {
+      throw new NotFoundException(`Book with id ${id} not found`);
+    }
+
+    try {
+      await this.booksRepository.delete(id);
+    } catch (error) {
+      throw new InternalServerErrorException('Error deleting the book');
+    }
   }
 }

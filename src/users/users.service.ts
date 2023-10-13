@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -12,13 +12,15 @@ export class UserService {
   ) {}
 
   async findAll(): Promise<Partial<User>[]> {
-    return await this.userRepository.find({ select: ['Username', 'Name', 'Vorname'] });
+    return await this.userRepository.find({
+      select: ['Username', 'Name', 'Vorname'],
+    });
   }
 
-  async findOneByUsername(Username: string): Promise<User | null> {
+  async findOneByUsername(Username: string): Promise<User> {
     const user = await this.userRepository.findOne({ where: { Username } });
     if (!user) {
-      return null;
+      throw new NotFoundException(`User with username "${Username}" not found`);
     }
     return user;
   }
@@ -40,11 +42,31 @@ export class UserService {
     await this.userRepository.save(userData);
   }
 
-  async update(id: string, updateData: Partial<User>): Promise<void> {
-    await this.userRepository.update(id, updateData);
+  async update(id: number, updateData: Partial<User>): Promise<void> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID "${id}" not found`);
+    }
+
+    try {
+      await this.userRepository.update(id, updateData);
+    } catch (error) {
+      throw new InternalServerErrorException('Error updating the user');
+    }
   }
 
   async remove(id: string): Promise<void> {
-    await this.userRepository.delete(id);
+    const result = await this.userRepository.delete(id);
+
+    if (result.affected === 0) {
+      throw new NotFoundException(`User with ID "${id}" not found`);
+    }
+
+    if (!result.raw) {
+      throw new InternalServerErrorException('User could not be deleted');
+    }
   }
 }
